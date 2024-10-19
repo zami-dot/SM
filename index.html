@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Congruential Method (LCM) with Visualization</title>
+    <style>
+    body {
+        font-family: 'Helvetica Neue', sans-serif;
+        padding: 20px;
+        background-color: #f4f4f9;
+        color: #333;
+    }
+    h1 {
+        text-align: center;
+        color: #2c3e50;
+        font-size: 2.5em;
+        margin-bottom: 30px;
+    }
+    form {
+        margin: 0 auto;
+        width: 60%;
+        background-color: #fff;
+        padding: 25px;
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        transition: all 0.3s ease-in-out;
+    }
+    form:hover {
+        box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.15);
+    }
+    form label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+        font-size: 1.1em;
+        color: #34495e;
+    }
+    form input {
+        width: 90%;
+        padding: 12px;
+        margin-bottom: 18px;
+        border: 2px solid #bdc3c7;
+        border-radius: 6px;
+        font-size: 1em;
+    }
+  button {
+        display: block;
+        width: 100%;
+        padding: 12px;
+	    margin: 15px;
+        background-color: #1abc9c;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 17px;
+        cursor: pointer;
+        transition: background-color 0.3s ease-in-out;
+    }
+  button:hover {
+        background-color: #16a085;
+    }
+    #printButton {
+        background-color: #3498db;
+    }
+    #printButton:hover {
+        background-color: #2980b9;
+    }
+    table {
+        width: 90%;
+        margin: 25px auto;
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    table, th, td {
+        border: 1px solid #e1e1e1;
+    }
+    th, td {
+        padding: 14px;
+        text-align: center;
+        font-size: 1em;
+    }
+    th {
+        background-color: #3498db;
+        color: #fff;
+        font-size: 1.2em;
+    }
+    .cycle-info {
+        color: #e74c3c;
+        font-weight: bold;
+        text-align: center;
+        font-size: 1.1em;
+    }
+    .repeated {
+        color: #e74c3c;
+        font-weight: bold;
+    }
+    #chartContainer {
+        margin: 40px auto;
+        width: 90%;
+        text-align: center;
+    }
+    canvas {
+        margin-top: 20px;
+    }
+    #buttons {
+        margin: 20px auto;
+        width: 50%;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    @media print {
+        body {
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        table, th, td {
+            border: 1px solid #000; 
+        }
+        #generateNewButton, 
+    #printButton  {
+        display: none !important; 
+    }
+        #chartContainer {
+            display: block; 
+        }
+        canvas {
+            display: block; 
+        }
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+    #resultsContainer h2 {
+    font-size: 1.8em;
+    color: #2c3e50;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#resultsContainer p {
+    font-size: 1.1em;
+    color: #34495e;
+    text-align: center;
+    margin: 10px 0;
+    line-height: 1.5;
+    background-color: #ecf0f1;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#resultsContainer table {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+#resultsContainer th, #resultsContainer td {
+    border: 1px solid #bdc3c7;
+    padding: 12px;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+#resultsContainer th {
+    background-color: #3498db;
+    color: white;
+}
+
+#resultsContainer tr:nth-child(even) {
+    background-color: #f4f4f4;
+}
+
+#resultsContainer .cycle-info {
+    font-weight: bold;
+    color: #27ae60;
+    text-align: center;
+}
+
+#resultsContainer .repeated {
+    background-color: #f9e79f;
+    font-weight: bold;
+}
+        #resultsContainer, #chartContainer, #newButtons {
+            display: none;
+        }
+
+#radioGroup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#radioGroup label {
+    display: inline-flex;
+    align-items: center;
+    margin: 4px;
+    gap: 0;
+}
+
+#radioGroup input[type="radio"] {
+    margin: 1px;
+    padding: 0;
+    width: auto; 
+    height: auto; 
+}
+
+
+    </style>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Linear Congruential Method (LCM) with Visualization</h1>
+
+    <form id="lcmForm">
+        <label for="singleValue">Do you want to find for a single value or a range?</label>
+        <div id="radioGroup">
+            <label>
+                <input type="radio" id="singleValue" name="valueType" value="single" checked>
+                Single
+            </label>
+            <label>
+                <input type="radio" id="rangeValue" name="valueType" value="range">
+                Range
+            </label>
+        </div>  
+        <div id="x0Field">
+            <label for="x0">Initial Value (X₀):</label>
+            <input type="number" id="x0" name="x0" placeholder="Enter X₀" required>
+        </div>
+        
+        <div id="x0RangeFields" style="display: none;">
+            <label for="x0From">Initial Value Range (X₀ From):</label>
+            <input type="number" id="x0From" name="x0From" placeholder="Enter  X₀ from">
+            
+            <label for="x0To">Initial Value Range (X₀ To):</label>
+            <input type="number" id="x0To" name="x0To" placeholder="Enter X₀ to">
+        </div>
+    
+        <label for="a">Multiplier (a):</label>
+        <input type="number" id="a" name="a" placeholder="Enter a" required>
+    
+        <label for="c">Increment (c):</label>
+        <input type="number" id="c" name="c" placeholder="Enter c" required>
+    
+        <label for="m">Modulus (m):</label>
+        <input type="number" id="m" name="m" placeholder="Enter m" required>
+    
+        <div id="buttons">
+            <button type="button" onclick="generateLCM()">Generate</button>
+        </div>
+    </form>
+    
+    <div id="resultsContainer"></div>
+    
+    <div id="chartContainer">
+        <h2>Repetition Cycle Lengths</h2>
+        <canvas id="cycleChart"></canvas>
+    </div>
+    
+    <div id="newButtons">
+        <button id="printButton" onclick="printPage()">Print</button>
+        <button id="generateNewButton" onclick="refreshPage()">Generate New Numbers</button>
+    </div>
+    
+    <script>
+
+        document.querySelectorAll('input[name="valueType"]').forEach((elem) => {
+            elem.addEventListener('change', function() {
+                if (this.value === 'single') {
+                    document.getElementById('x0Field').style.display = 'block';
+                    document.getElementById('x0RangeFields').style.display = 'none';
+                } else {
+                    document.getElementById('x0Field').style.display = 'none';
+                    document.getElementById('x0RangeFields').style.display = 'block';
+                }
+            });
+        });
+    let chart; 
+        function generateLCM() {
+            const valueType = document.querySelector('input[name="valueType"]:checked').value;
+            let x0From, x0To;
+    
+            if (valueType === 'single') {
+                x0From = parseInt(document.getElementById('x0').value);
+                x0To = x0From;
+            } else {
+                x0From = parseInt(document.getElementById('x0From').value);
+                x0To = parseInt(document.getElementById('x0To').value);
+    
+                if (x0From > x0To) {
+                    alert("X₀ To should not be less than X₀ From. The range is invalid.");
+                    return;
+                }
+            }
+    
+            const a = parseInt(document.getElementById('a').value);
+            const c = parseInt(document.getElementById('c').value);
+            const m = parseInt(document.getElementById('m').value);
+    
+            if (isNaN(x0From) || isNaN(x0To) || isNaN(a) || isNaN(c) || isNaN(m)) {
+                alert("Values cannot be empty or invalid.");
+                return;
+            }
+    
+            if (x0From < 0 || x0To < 0 || a < 0 || c < 0 || m < 0) {
+                alert("Values cannot be negative. Please enter non-negative values.");
+                return;
+            }         
+            document.getElementById('lcmForm').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            document.getElementById('chartContainer').style.display = 'block';
+            document.getElementById('newButtons').style.display = 'block';
+
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+            if(valueType === 'single'){
+                resultsContainer.innerHTML = `<h2>Input Information</h2>
+            <p>X₀ value (X₀): ${x0From}</p>
+            <p>Multiplier (a): ${a}</p>
+            <p>Increment (c): ${c}</p>
+            <p>Modulus (m): ${m}</p>`;
+            }
+            else
+            {
+                resultsContainer.innerHTML = `<h2>Input Information</h2>
+            <p>X₀ values range from ${x0From} to ${x0To}</p>
+            <p>Multiplier (a): ${a}</p>
+            <p>Increment (c): ${c}</p>
+            <p>Modulus (m): ${m}</p>`;
+
+            }
+            
+            const cycleLengths = [];
+            const x0Labels = [];
+
+            for (let x0 = x0From; x0 <= x0To; x0++) {
+                let xi = x0;
+                let i = 0;
+                const seen = {};
+                const cycle = [];
+                let firstRepeatedIndex = -1; 
+
+                let tableHTML = `
+                    <table>
+                        <thead>
+                            <tr><th colspan="3">LCM Sequence for X₀ = ${x0}</th></tr>
+                            <tr><th>i</th><th>Xᵢ</th><th>Rᵢ = Xᵢ / m</th></tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                while (!seen.hasOwnProperty(xi)) {
+                    seen[xi] = i;
+                    cycle.push(xi);
+
+                    const ri = (xi / m).toFixed(4);
+			if(i!==0)
+                    tableHTML += `<tr><td>${i}</td><td>${xi}</td><td>${ri}</td></tr>`;
+
+                    i++;
+                    xi = (a * xi + c) % m;
+                }
+
+                firstRepeatedIndex = seen[xi];
+                const cycleLength = i - firstRepeatedIndex;
+                x0Labels.push(x0);
+                cycleLengths.push(cycleLength);
+
+                tableHTML += `<tr class="repeated"><td>${i}</td><td class="repeated">${xi}</td><td>${(xi / m).toFixed(4)}</td></tr>`;
+                tableHTML += `<tr><td colspan="3" class="cycle-info">Cycle is repeated after ${cycleLength} random numbers.</td></tr>`;
+
+                tableHTML += '</tbody></table>';
+                resultsContainer.innerHTML += tableHTML;
+            }
+
+            generateChart(x0Labels, cycleLengths);
+        }
+
+        function generateChart(labels, data) {
+            const ctx = document.getElementById('cycleChart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();  
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cycle Length (Periods)',
+                        data: data,
+                        backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Cycle Length'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Initial Value (X₀)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function printPage() {
+            window.print();  
+        }
+
+        function refreshPage() {
+            window.location.reload(); 
+        }
+    </script>
+</body>
+</html>
